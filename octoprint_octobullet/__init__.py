@@ -16,6 +16,8 @@ from flask.ext.login import current_user
 import pushbullet
 import flask
 
+import sarge
+
 class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
                        octoprint.plugin.SettingsPlugin,
                        octoprint.plugin.StartupPlugin,
@@ -231,26 +233,32 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 		rotate= self._settings.global_get(["webcam", "rotate90"])
 		
 		ffmpeg = self._settings.global_get(["webcam", "ffmpeg"])
-		ffmpeg_command = ffmpeg + ' -i ' + snapshot_path;
+		ffmpeg_command = ffmpeg + ' -y -i -vf ' + snapshot_path;
 		
+		rotate_params = []
 		if flipH or flipV or rotate:
+			if rotate:
+				rotate_params.append('transpose=2') # 90 degrees counter clockwise
+			if flipH:
+				rotate_params.append('hflip') 		# horizontal flip
+			if flipV:
+				rotate_params.append('vflip')		# vertical flip
 			
-			# 				image = Image.open(StringIO.StringIO(data))
-			# 			if flipH:
-			# 				image = image.transpose(Image.FLIP_LEFT_RIGHT)
-			# 			if flipV:
-			# 				image = image.transpose(Image.FLIP_TOP_BOTTOM)
-			# 			if rotate:
-			# 				image = image.transpose(Image.ROTATE_90)
-			# 			output = StringIO.StringIO()
-			# 			image.save(output, format="JPEG")
-			# 			data = output.getvalue()
-			# 			output.close()
-			# return data
+			ffmpeg_command += ','.join(rotate_params)
 
 			# overwrite original image with the processed one
 			ffmpeg_command += ' ' + snapshot_path
-			
+
+			p = sarge.run(ffmpeg_command, stdout=sarge.Capture(), stderr=sarge.Capture)()
+			if p.returncode == 0:
+				stdout_text = p.stdout.text
+    			self._logger.info("Rotated image with ffmpeg: %s" % stdout_text)
+    		else:
+				returncode = p.returncode
+				stderr_text = p.stderr.text
+
+				self._logger.warn("Failed to rotate image with ffmpeg, got return code %r: %s" % (returncode, stderr_text))
+
 __plugin_name__ = "Pushbullet"
 def __plugin_load__():
 	global __plugin_implementation__
