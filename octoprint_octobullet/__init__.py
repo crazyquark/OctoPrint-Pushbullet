@@ -169,7 +169,7 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 						message=str(e)))
 			else:
 				# Flip or rotate as needed
-				_process_snapshot(snapshot_path)
+				self._process_snapshot(snapshot_path)
 
 				if self._send_file(sender, snapshot_path, filename, body):
 					return True
