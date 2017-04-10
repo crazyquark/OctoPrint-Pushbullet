@@ -233,7 +233,7 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 		rotate= self._settings.global_get(["webcam", "rotate90"])
 		
 		ffmpeg = self._settings.global_get(["webcam", "ffmpeg"])
-		ffmpeg_command = ffmpeg + ' -y -i -vf ' + snapshot_path;
+		ffmpeg_command = ffmpeg + ' -y -i ' + snapshot_path + ' -vf ';
 		
 		rotate_params = []
 		if flipH or flipV or rotate:
