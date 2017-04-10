@@ -227,8 +227,8 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 			return None, None
 
 	def _process_snapshot(self, snapshot_path):
-		flipH  = self._settings.global_get_boolean(["webcam", "flipH"])
-		flipV  = self._settings.global_get_boolean(["webcam", "flipV"])
+		hflip  = self._settings.global_get_boolean(["webcam", "flipH"])
+		vflip  = self._settings.global_get_boolean(["webcam", "flipV"])
 		rotate = self._settings.global_get_boolean(["webcam", "rotate90"])
 		ffmpeg = self._settings.global_get(["webcam", "ffmpeg"])
 		
@@ -239,9 +239,9 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 
 		if rotate:
 			rotate_params.append('transpose=2') # 90 degrees counter clockwise
-		if flipH:
+		if hflip:
 			rotate_params.append('hflip') 		# horizontal flip
-		if flipV:
+		if vflip:
 			rotate_params.append('vflip')		# vertical flip
 		
 		ffmpeg_command += ','.join(rotate_params)
