@@ -237,6 +237,7 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 
 		ffmpeg_command = ffmpeg + ' -y -i ' + snapshot_path + ' -vf '
 
+		rotate_params = []
 		if rotate:
 			rotate_params.append('transpose=2') # 90 degrees counter clockwise
 		if hflip:
