@@ -158,25 +158,6 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 
 		snapshot_url = self._settings.global_get(["webcam", "snapshot"])
 		if snapshot_url:
-			# stolen from https://github.com/fabianonline/OctoPrint-Telegram/
-			flipH = self._settings.global_get(["webcam", "flipH"])
-			flipV = self._settings.global_get(["webcam", "flipV"])
-			rotate= self._settings.global_get(["webcam", "rotate90"])
-			
-			# 	if flipH or flipV or rotate:
-			# 				image = Image.open(StringIO.StringIO(data))
-			# 			if flipH:
-			# 				image = image.transpose(Image.FLIP_LEFT_RIGHT)
-			# 			if flipV:
-			# 				image = image.transpose(Image.FLIP_TOP_BOTTOM)
-			# 			if rotate:
-			# 				image = image.transpose(Image.ROTATE_90)
-			# 			output = StringIO.StringIO()
-			# 			image.save(output, format="JPEG")
-			# 			data = output.getvalue()
-			# 			output.close()
-			# return data
-
 			try:
 				import urllib
 				snapshot_path, headers = urllib.urlretrieve(snapshot_url)
@@ -185,6 +166,9 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 					"Exception while fetching snapshot from webcam, sending only a note: {message}".format(
 						message=str(e)))
 			else:
+				# Flip or rotate as needed
+				_process_snapshot(snapshot_path)
+
 				if self._send_file(sender, snapshot_path, filename, body):
 					return True
 				self._logger.warn("Could not send a file message with the webcam image, sending only a note")
@@ -240,7 +224,33 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 			self._logger.exception("Error while instantiating PushBullet")
 			return None, None
 
+	def _process_snapshot(self, snapshot_path):
+		# stolen from https://github.com/fabianonline/OctoPrint-Telegram/
+		flipH = self._settings.global_get(["webcam", "flipH"])
+		flipV = self._settings.global_get(["webcam", "flipV"])
+		rotate= self._settings.global_get(["webcam", "rotate90"])
+		
+		ffmpeg = self._settings.global_get(["webcam", "ffmpeg"])
+		ffmpeg_command = ffmpeg + ' -i ' + snapshot_path;
+		
+		if flipH or flipV or rotate:
+			
+			# 				image = Image.open(StringIO.StringIO(data))
+			# 			if flipH:
+			# 				image = image.transpose(Image.FLIP_LEFT_RIGHT)
+			# 			if flipV:
+			# 				image = image.transpose(Image.FLIP_TOP_BOTTOM)
+			# 			if rotate:
+			# 				image = image.transpose(Image.ROTATE_90)
+			# 			output = StringIO.StringIO()
+			# 			image.save(output, format="JPEG")
+			# 			data = output.getvalue()
+			# 			output.close()
+			# return data
 
+			# overwrite original image with the processed one
+			ffmpeg_command += ' ' + snapshot_path
+			
 __plugin_name__ = "Pushbullet"
 def __plugin_load__():
 	global __plugin_implementation__
