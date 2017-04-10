@@ -249,7 +249,7 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 		if vflip:
 			rotate_params.append("vflip")		# vertical flip
 		
-		ffmpeg_command += ",".join(rotate_params)
+		ffmpeg_command += "\"" + ",".join(rotate_params) + "\""
 
 		# overwrite original image with the processed one
 		ffmpeg_command += " " + snapshot_path
