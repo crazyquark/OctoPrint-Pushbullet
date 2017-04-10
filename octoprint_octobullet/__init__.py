@@ -239,20 +239,21 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 		if ffmpeg is None or not os.access(ffmpeg, os.X_OK) or (not vflip and not hflip and not rotate):
 			return
 
-		ffmpeg_command = ffmpeg + ' -y -i ' + snapshot_path + ' -vf '
+		ffmpeg_command = ffmpeg + " -y -i " + snapshot_path + " -vf "
 
 		rotate_params = []
 		if rotate:
-			rotate_params.append('transpose=2') # 90 degrees counter clockwise
+			rotate_params.append("transpose=2") # 90 degrees counter clockwise
 		if hflip:
-			rotate_params.append('hflip') 		# horizontal flip
+			rotate_params.append("hflip") 		# horizontal flip
 		if vflip:
-			rotate_params.append('vflip')		# vertical flip
+			rotate_params.append("vflip")		# vertical flip
 		
-		ffmpeg_command += ','.join(rotate_params)
+		ffmpeg_command += ",".join(rotate_params)
 
 		# overwrite original image with the processed one
-		ffmpeg_command += ' ' + snapshot_path
+		ffmpeg_command += " " + snapshot_path
+		self._logger.info("Running: %s" & ffmpeg_command)
 
 		p = sarge.run(ffmpeg_command, stdout=sarge.Capture(), stderr=sarge.Capture())
 		if p.returncode == 0:
