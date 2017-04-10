@@ -227,37 +227,37 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 			return None, None
 
 	def _process_snapshot(self, snapshot_path):
-		# stolen from https://github.com/fabianonline/OctoPrint-Telegram/
-		flipH = self._settings.global_get(["webcam", "flipH"])
-		flipV = self._settings.global_get(["webcam", "flipV"])
-		rotate= self._settings.global_get(["webcam", "rotate90"])
-		
+		flipH  = self._settings.global_get_boolean(["webcam", "flipH"])
+		flipV  = self._settings.global_get_boolean(["webcam", "flipV"])
+		rotate = self._settings.global_get_boolean(["webcam", "rotate90"])
 		ffmpeg = self._settings.global_get(["webcam", "ffmpeg"])
-		ffmpeg_command = ffmpeg + ' -y -i ' + snapshot_path + ' -vf ';
 		
-		rotate_params = []
-		if flipH or flipV or rotate:
-			if rotate:
-				rotate_params.append('transpose=2') # 90 degrees counter clockwise
-			if flipH:
-				rotate_params.append('hflip') 		# horizontal flip
-			if flipV:
-				rotate_params.append('vflip')		# vertical flip
-			
-			ffmpeg_command += ','.join(rotate_params)
+		if ffmpeg is None or not os.access(ffmpeg, os.X_OK) or (not vflip and not hflip and not rotate):
+        	return
 
-			# overwrite original image with the processed one
-			ffmpeg_command += ' ' + snapshot_path
+		ffmpeg_command = ffmpeg + ' -y -i ' + snapshot_path + ' -vf '
 
-			p = sarge.run(ffmpeg_command, stdout=sarge.Capture(), stderr=sarge.Capture)()
-			if p.returncode == 0:
-				stdout_text = p.stdout.text
-    			self._logger.info("Rotated image with ffmpeg: %s" % stdout_text)
-    		else:
-				returncode = p.returncode
-				stderr_text = p.stderr.text
+		if rotate:
+			rotate_params.append('transpose=2') # 90 degrees counter clockwise
+		if flipH:
+			rotate_params.append('hflip') 		# horizontal flip
+		if flipV:
+			rotate_params.append('vflip')		# vertical flip
+		
+		ffmpeg_command += ','.join(rotate_params)
 
-				self._logger.warn("Failed to rotate image with ffmpeg, got return code %r: %s" % (returncode, stderr_text))
+		# overwrite original image with the processed one
+		ffmpeg_command += ' ' + snapshot_path
+
+		p = sarge.run(ffmpeg_command, stdout=sarge.Capture(), stderr=sarge.Capture)()
+		if p.returncode == 0:
+			stdout_text = p.stdout.text
+			self._logger.info("Rotated image with ffmpeg: %s" % stdout_text)
+		else:
+			returncode = p.returncode
+			stderr_text = p.stderr.text
+
+			self._logger.warn("Failed to rotate image with ffmpeg, got return code %r: %s" % (returncode, stderr_text))
 
 __plugin_name__ = "Pushbullet"
 def __plugin_load__():
