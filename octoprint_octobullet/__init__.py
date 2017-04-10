@@ -168,6 +168,10 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 					"Exception while fetching snapshot from webcam, sending only a note: {message}".format(
 						message=str(e)))
 			else:
+				# ffmpeg can't guess file type it seems
+				os.rename(snapshot_path, snapshot_path + ".jpg")
+				snapshot_path += ".jpg"
+
 				# Flip or rotate as needed
 				self._process_snapshot(snapshot_path)
 
