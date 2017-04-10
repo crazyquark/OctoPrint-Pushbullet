@@ -233,7 +233,7 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 		ffmpeg = self._settings.global_get(["webcam", "ffmpeg"])
 		
 		if ffmpeg is None or not os.access(ffmpeg, os.X_OK) or (not vflip and not hflip and not rotate):
-        	return
+			return
 
 		ffmpeg_command = ffmpeg + ' -y -i ' + snapshot_path + ' -vf '
 
