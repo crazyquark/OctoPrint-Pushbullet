@@ -253,7 +253,7 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 
 		# overwrite original image with the processed one
 		ffmpeg_command += " " + snapshot_path
-		self._logger.info("Running: %s" & ffmpeg_command)
+		self._logger.info("Running: %s" % ffmpeg_command)
 
 		p = sarge.run(ffmpeg_command, stdout=sarge.Capture(), stderr=sarge.Capture())
 		if p.returncode == 0:
