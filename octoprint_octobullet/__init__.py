@@ -250,7 +250,7 @@ class PushbulletPlugin(octoprint.plugin.EventHandlerPlugin,
 		# overwrite original image with the processed one
 		ffmpeg_command += ' ' + snapshot_path
 
-		p = sarge.run(ffmpeg_command, stdout=sarge.Capture(), stderr=sarge.Capture)()
+		p = sarge.run(ffmpeg_command, stdout=sarge.Capture(), stderr=sarge.Capture())
 		if p.returncode == 0:
 			stdout_text = p.stdout.text
 			self._logger.info("Rotated image with ffmpeg: %s" % stdout_text)
